@@ -15,7 +15,7 @@ get_duration = {
 }
 
 
-class AudioStats:
+class StatsReader:
     def __init__(self, cache_path: str = "/tmp/audio_stats.tmp"):
         self.cache_path = cache_path
         self.cache = {}
@@ -23,7 +23,7 @@ class AudioStats:
         self.opened = False
         self.f = None
 
-    def __enter__(self) -> AudioStats:
+    def __enter__(self) -> StatsReader:
         if self.opened:
             raise RuntimeError("context cannot be entered multiple times")
 
@@ -52,7 +52,7 @@ class AudioStats:
         self.f.close()
         self.f = None
 
-    def get(self, path: str) -> Dict[str, Union[int, float]]:
+    def read(self, path: str) -> Dict[str, Union[int, float]]:
         if not self.opened:
             raise RuntimeError("read only within context")
 
