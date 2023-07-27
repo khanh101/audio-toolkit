@@ -6,8 +6,8 @@ from typing import *
 
 from tqdm import tqdm
 
-from .flac_reader import get_flac_duration
-from .wav_reader import get_wav_duration
+from .flac_stats_reader import get_flac_duration
+from .wav_stats_reader import get_wav_duration
 
 get_duration = {
     ".wav": get_wav_duration,
@@ -39,10 +39,7 @@ class AudioStats:
                 for line in tqdm(list(f), desc=f"loading cache {self.cache_path}"):
                     o = json.loads(line)
                     path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
-                    self.cache[path] = {
-                        "frame_count": frame_count,
-                        "sample_rate": sample_rate,
-                    }
+                    self.cache[path] = o
         # open file
         self.f = open(self.cache_path, "a")
         return self
@@ -55,7 +52,7 @@ class AudioStats:
         self.f.close()
         self.f = None
 
-    def read(self, path: str) -> Dict[str, Union[int, float]]:
+    def get(self, path: str) -> Dict[str, Union[int, float]]:
         if not self.opened:
             raise RuntimeError("read only within context")
 
@@ -63,7 +60,7 @@ class AudioStats:
 
         if path not in self.cache:
             ext = os.path.splitext(path)[1]
-            frame_count, sample_rate = get_duration[ext](path)
+            frame_count, sample_rate = get_duration[ext.lower()](path)
 
             o = {
                 "path": path,
