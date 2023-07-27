@@ -1,1 +1,1 @@
-from .stats_reader import StatsReader
+from .audio_stats import AudioStats
