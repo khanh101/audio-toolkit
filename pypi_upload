@@ -1,9 +1,8 @@
-# audio-tools
+#!/usr/bin/env bash
 
-# upload
-
-```bash
 rm -rf dist crypt_dir.egg-info
+
 python setup.py sdist
 twine upload dist/*
-```
+
+rm -rf dist crypt_dir.egg-info
