@@ -5,13 +5,13 @@ if __name__ == "__main__":
         long_description = f.read()
 
     setuptools.setup(
-        name="audio-stats",
-        version="0.0.4",
+        name="audio-toolkit",
+        version="0.0.1",
         author="Nguyen Ngoc Khanh",
         author_email="khanh.nguyen.contact@gmail.com",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        url="https://github.com/khanh101/audio-stats",
+        url="https://github.com/khanh101/audio-tools",
         packages=setuptools.find_packages(),
         license="MIT",
         install_requires=[
