@@ -1,1 +1,1 @@
-from .audio_stats import AudioStats
+from .audio_stats import AudioStats, AudioStatsV2

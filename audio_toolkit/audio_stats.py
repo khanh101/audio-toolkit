@@ -6,7 +6,7 @@ import os
 import struct
 import wave
 from typing import *
-
+from sqlitedict import SqliteDict
 from tqdm import tqdm
 
 
@@ -91,6 +91,41 @@ get_duration = {
     ".wav": get_wav_duration,
     ".flac": get_flac_duration,
 }
+
+class AudioStatsV2:
+    def __init__(self, filename: str = "/tmp/audio_stats.sqlite", tablename: str = "audio_stats", cache_path: str | None = None):
+        self.db = SqliteDict(filename=filename, tablename=tablename, autocommit=False)
+        # load V1
+        if cache_path is not None and os.path.exists(cache_path):
+            cache = {}
+            # read cache
+            with open(cache_path) as f:
+                for line in tqdm(list(f), desc=f"loading cache {cache_path}"):
+                    o = json.loads(line)
+                    path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
+                    cache[path] = o
+            # write
+            for path, o in tqdm(cache.items(), desc=f"ingesting cache {filename}"):
+                self.db[path] = o
+            self.db.commit()
+
+    def get(self, path: str) -> Dict[str, Union[int, float]]:
+        path = os.path.realpath(path)
+
+        o = self.db.get(path, None)
+        if o is None:
+            ext = os.path.splitext(path)[1]
+            frame_count, sample_rate = get_duration[ext.lower()](path)
+
+            o = {
+                "path": path,
+                "frame_count": frame_count,
+                "sample_rate": sample_rate,
+            }
+            self.db[path] = o
+            self.db.commit()
+
+        return o
 
 
 class AudioStats:
