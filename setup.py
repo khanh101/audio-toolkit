@@ -4,11 +4,11 @@ if __name__ == "__main__":
     with open("README.md") as f:
         long_description = f.read()
     
-    with open("version") as f:
+    with open("audio_toolkit/version") as f:
         version = int(f.read())
 
     new_version = version+1
-    with open("version", "w") as f:
+    with open("audio_toolkit/version", "w") as f:
         f.write(str(new_version))
 
     setuptools.setup(
