@@ -6,7 +6,7 @@ import os
 import struct
 import wave
 from typing import *
-
+from sqlitedict import SqliteDict
 from tqdm import tqdm
 
 
@@ -92,9 +92,62 @@ get_duration = {
     ".flac": get_flac_duration,
 }
 
+class AudioStatsV2:
+    def __init__(self, filename: str = "/tmp/audio_stats.sqlite", tablename: str = "audio_stats"):
+        self.db = SqliteDict(filename=filename, tablename=tablename, autocommit=False)
+        self.autocommit = True
+    
+    
+    def __enter__(self) -> AudioStatsV2:
+        if self.autocommit == False:
+            raise RuntimeError("context cannot be entered multiple times")
+        
+        self.autocommit = False
+
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.autocommit == True:
+            raise RuntimeError("context cannot be exited without entering")
+        
+        self.autocommit = True
+
+    def ingest(self, cache_path: str="/tmp/audio_stats.json"):
+        # load V1
+        cache = {}
+        # read cache
+        with open(cache_path) as f:
+            for line in tqdm(list(f), desc=f"loading cache {cache_path}"):
+                o = json.loads(line)
+                path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
+                cache[path] = o
+        # write
+        for path, o in tqdm(cache.items(), desc=f"ingesting cache {filename}"):
+            stats.db[path] = o
+        stats.db.commit()
+
+    def get(self, path: str) -> Dict[str, Union[int, float]]:
+        path = os.path.realpath(path)
+
+        o = self.db.get(path, None)
+        if o is None:
+            ext = os.path.splitext(path)[1]
+            frame_count, sample_rate = get_duration[ext.lower()](path)
+
+            o = {
+                "path": path,
+                "frame_count": frame_count,
+                "sample_rate": sample_rate,
+            }
+            self.db[path] = o
+            if self.autocommit:
+                self.db.commit()
+
+        return o
+
 
 class AudioStats:
-    def __init__(self, cache_path: str = "/tmp/audio_stats.tmp"):
+    def __init__(self, cache_path: str = "/tmp/audio_stats.json"):
         self.cache_path = cache_path
         self.cache = {}
 

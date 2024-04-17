@@ -2,6 +2,7 @@
 
 rm -rf dist crypt_dir.egg-info
 
+python update_setup.py
 python setup.py sdist
 twine upload dist/*
 
