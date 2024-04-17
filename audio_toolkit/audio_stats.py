@@ -122,10 +122,9 @@ class AudioStatsV2:
                 path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
                 cache[path] = o
         # write
-        with self as stats:
-            for path, o in tqdm(cache.items(), desc=f"ingesting cache {filename}"):
-                stats.db[path] = o
-            stats.db.commit()
+        for path, o in tqdm(cache.items(), desc=f"ingesting cache {filename}"):
+            stats.db[path] = o
+        stats.db.commit()
 
     def get(self, path: str) -> Dict[str, Union[int, float]]:
         path = os.path.realpath(path)
