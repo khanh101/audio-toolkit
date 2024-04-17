@@ -4,16 +4,9 @@ if __name__ == "__main__":
     with open("README.md") as f:
         long_description = f.read()
     
-    with open("audio_toolkit/version") as f:
-        version = int(f.read())
-
-    new_version = version+1
-    with open("audio_toolkit/version", "w") as f:
-        f.write(str(new_version))
-
     setuptools.setup(
         name="audio-toolkit",
-        version=f"0.{new_version}.0",
+        version="0.9.0",
         author="Nguyen Ngoc Khanh",
         author_email="khanh.nguyen.contact@gmail.com",
         long_description=long_description,
