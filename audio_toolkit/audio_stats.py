@@ -99,7 +99,7 @@ class AudioStatsV2:
     
     
     def __enter__(self) -> AudioStatsV2:
-        if self.autocommit == True:
+        if self.autocommit == False:
             raise RuntimeError("context cannot be entered multiple times")
         
         self.autocommit = False
@@ -107,7 +107,7 @@ class AudioStatsV2:
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.autocommit == False:
+        if self.autocommit == True:
             raise RuntimeError("context cannot be exited without entering")
         
         self.autocommit = True
