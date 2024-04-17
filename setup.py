@@ -6,7 +6,7 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="audio-toolkit",
-        version="0.1.0",
+        version="0.2.0",
         author="Nguyen Ngoc Khanh",
         author_email="khanh.nguyen.contact@gmail.com",
         long_description=long_description,
@@ -15,6 +15,7 @@ if __name__ == "__main__":
         packages=setuptools.find_packages(),
         license="MIT",
         install_requires=[
-            "tqdm==4.65.0"
+            "tqdm==4.65.0",
+            "sqlitedict==2.1.0",
         ],
     )
