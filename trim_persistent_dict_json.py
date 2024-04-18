@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import json
 import os
+import sys
 
 from tqdm import tqdm
 
 if __name__ == "__main__":
-    cache_path = "/tmp/persistent_dict.json"
+    cache_path = sys.argv[1]
     
     cache = {}
     cache_str = open(self.cache_path).read().rstrip(",\n")
@@ -13,9 +14,8 @@ if __name__ == "__main__":
     for o in o_list:
         cache[o["key"]] = o["val"]
     
-    with open(cache_path, "w") as f:
-        for k, v in cache.items():
-            f.write(json.dumps({
-                "key": k,
-                "val": v,
-            }) + ",\n")
+    for k, v in cache.items():
+        sys.stdout.write(json.dumps({
+            "key": k,
+            "val": v,
+        }) + ",\n")
