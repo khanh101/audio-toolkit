@@ -1,6 +1,5 @@
 
-version = int(open("version").read())
-version +=1
+version = int(open("version").read()) + 1
 open("version", "w").write(str(version))
 
 setup_str = f"""
