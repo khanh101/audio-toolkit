@@ -19,7 +19,8 @@ if __name__ == "__main__":
     print(f"cache load time {cache_path}: {t1-t0}", file=sys.stderr)
 
     for k, v in tqdm(cache.items(), desc="writing cache ..."):
-        sys.stdout.write(json.dumps({
-            "key": k,
-            "val": v,
-        }) + ",\n")
+        if os.path.exists(k):
+            sys.stdout.write(json.dumps({
+                "key": k,
+                "val": v,
+            }) + ",\n")
