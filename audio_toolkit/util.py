@@ -13,6 +13,9 @@ class PersistentDict:
     def __exit__(self, exc_type, exc_val, exc_tb):
         raise NotImplemented
 
+    def set(key: str, val: Any):
+        raise NotImplemented
+
     def get_or_set(self, key: str, get: Callable[[], Any]) -> Any:
         raise NotImplemented
 
@@ -47,14 +50,18 @@ class PersistentDictJson(PersistentDict):
         self.f.close()
         self.f = None
 
+    def set(key: str, val: Any):
+        assert self.f is not None
+        self.cache[key] = val
+        self.f.write(json.dumps({
+            "key": key,
+            "val": val,
+        }) + ",\n")
+
     def get_or_set(self, key: str, get: Callable[[], Any]) -> Any:
         assert self.f is not None
         if key not in self.cache:
             val = get()
-            self.cache[key] = val
-            self.f.write(json.dumps({
-                "key": key,
-                "val": val,
-            }) + ",\n")
+            self.set(key, val)
 
         return self.cache[key]

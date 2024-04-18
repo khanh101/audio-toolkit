@@ -176,7 +176,7 @@ class AudioStatsV3:
         with self.pd as pd:
             for path, o in tqdm(cache.items(), desc=f"ingesting cache"):
                 path = os.path.realpath(path)
-                pd.get_or_set(key=path, get=lambda: o)
+                pd.set(key=path, val=o)
 
     def get(self, path: str) -> Dict[str, Union[int, float]]:
         path = os.path.realpath(path)
