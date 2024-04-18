@@ -7,6 +7,16 @@ import time
 import sys
 
 class PersistentDict:
+    def __enter__(self) -> PersistentDict:
+        raise NotImplemented
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        raise NotImplemented
+
+    def get_or_set(self, key: str, get: Callable[[], Any]) -> Any:
+        raise NotImplemented
+
+class PersistentDictJson(PersistentDict):
     def __init__(self, cache_path: str = "/tmp/persistent_dict.json"):
         self.cache_path = os.path.realpath(cache_path)
         self.cache = {}

@@ -151,7 +151,7 @@ class AudioStatsV2:
 
 class AudioStatsV3:
     def __init__(self, cache_path: str = "/tmp/audio_stats.json"):
-        self.pd = PersistentDict(cache_path=cache_path)
+        self.pd = PersistentDictJson(cache_path=cache_path)
 
     def __enter__(self) -> AudioStatsV3:
         self.pd.__enter__()
