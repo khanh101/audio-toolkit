@@ -31,68 +31,6 @@ class PersistentDict:
         self.set(key, val)
         return val
 
-class PersistentDictParallel(PersistentDict):
-    def __init__(self, pdict_list: list[PersistentDict]):
-        self.pdict_list = pdict_list
-        self.opened = False
-    
-    def __enter__(self) -> PersistentDict:
-        assert self.opened == False
-        for pd in self.pdict_list:
-            pd.__enter__()
-        self.opened = True
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        assert self.opened == True
-        for pd in self.pdict_list:
-            pd.__exit__(exc_type, exc_val, exc_tb)
-        self.opened = False
-    
-    def __len__(self) -> int:
-        return sum([len(pd) for pd in self.pdict_list])
-    
-    def get(self, key: str) -> tuple[bool, Any]:
-        for pd in self.pdict_list:
-            found, val = pd.get(key)
-            if found:
-                return True, val
-        return False, None
-    
-    def set(self, key: str, val: Any):
-        assert self.opened
-        for pd in self.pdict_list:
-            found, _ = pd.get(key)
-            if found:
-                pd.set(key, val)
-                return
-
-        len_list = [len(pd) for pd in self.pdict_list]
-        i = len_list.index(min(len_list))
-        pd = self.pdict_list[i]
-        pd.set(key, val)
-    
-class PersistentDictLocal:
-    def __init__(self):
-        self.dict = {}
-
-    def __enter__(self) -> PersistentDict:
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        return self
-
-    def __len__(self) -> int:
-        return len(self.dict)
-
-    def get(self, key: str) -> tuple[bool, Any]:
-        if key not in self.dict:
-            return False, None
-        return True, self.dict[key]
-
-    def set(self, key: str, val: Any):
-        self.dict[key] = val
-
 class PersistentDictJson(PersistentDict):
     def __init__(self, cache_path: str = "/tmp/persistent_dict.json"):
         self.cache_path = os.path.realpath(cache_path)
