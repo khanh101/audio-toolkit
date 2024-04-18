@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="audio-toolkit",
-    version="0.21.0",
+    version="0.22.0",
     author="Nguyen Ngoc Khanh",
     author_email="khanh.nguyen.contact@gmail.com",
     long_description=open("README.md").read(),

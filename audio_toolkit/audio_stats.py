@@ -174,7 +174,7 @@ class AudioStatsV3:
                 }
         # write
         with self.pd as pd:
-            for path, o in tqdm(cache.items(), desc=f"ingesting cache"):
+            for path, o in tqdm(cache.items(), desc=f"ingesting cache {cache_path}"):
                 path = os.path.realpath(path)
                 pd.set(key=path, val=o)
 
