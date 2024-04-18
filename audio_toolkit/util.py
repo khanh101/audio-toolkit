@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import os
 from typing import Callable, Any
-
+import time
+import sys
 
 class PersistentDict:
     def __init__(self, cache_path: str = "/tmp/persistent_dict.json"):
@@ -19,10 +20,13 @@ class PersistentDict:
 
         if os.path.exists(self.cache_path):
             # load cache file
+            t0 = time.time()
             cache_str = open(self.cache_path).read().rstrip(",\n")
             o_list = json.loads(f"[{cache_str}]")
             for o in o_list:
                 self.cache[o["key"]] = o["val"]
+            t1 = time.time()
+            print(f"cache load time {self.cache_path}: {t1-t0}", file=sys.stderr)
 
         # open cache file to write
         self.f = open(self.cache_path, "a")
