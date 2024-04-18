@@ -10,7 +10,7 @@ from typing import *
 from sqlitedict import SqliteDict
 from tqdm import tqdm
 
-from util import PersistentDict
+from .util import PersistentDict
 
 
 def bytes_to_int(bytes: list) -> int:
