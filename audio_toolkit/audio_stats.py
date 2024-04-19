@@ -11,6 +11,8 @@ from sqlitedict import SqliteDict
 from tqdm import tqdm
 
 from .util import PersistentDictJson
+import time
+import duckdb as ddb
 
 
 def bytes_to_int(bytes: list) -> int:
