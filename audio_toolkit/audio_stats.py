@@ -13,6 +13,7 @@ from tqdm import tqdm
 from .util import PersistentDictJson
 import time
 import duckdb as ddb
+import sys
 
 
 def bytes_to_int(bytes: list) -> int:
@@ -268,9 +269,8 @@ class AudioStatsV4:
         if os.path.exists(self.cache_path):
             # load cache file
             t0 = time.time()
-            for row in ddb.read_csv(self.cache_path, sep="|").fetchall():
-                path, sample_rate, frame_count = row
-                self.cache[path] = (sample_rate, frame_count)
+            row_list = ddb.read_csv(self.cache_path, sep="|").fetchall()
+            self.cache = dict(map(lambda row: (row[0], (row[1], row[2])), row_list))
             t1 = time.time()
             print(f"cache load time {self.cache_path}: {t1-t0}", file=sys.stderr)
 
