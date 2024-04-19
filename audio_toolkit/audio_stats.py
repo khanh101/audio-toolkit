@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from .util import PersistentDictJson
 import time
-import duckdb as ddb
+import duckdb
 import sys
 
 
@@ -254,13 +254,14 @@ class AudioStats:
 
         return self.cache[path]
 
+
 class AudioStatsV4:
     def __init__(self, cache_path: str = "/tmp/audio_stats.csv"):
         self.cache_path = os.path.realpath(cache_path)
         self.cache = {}
         self.f = None
 
-    def __enter__(self) -> PersistentDict:
+    def __enter__(self) -> AudioStatsV4:
         assert self.f is None
         cache_dir = os.path.dirname(self.cache_path)
         if not os.path.exists(cache_dir):
@@ -269,10 +270,12 @@ class AudioStatsV4:
         if os.path.exists(self.cache_path):
             # load cache file
             t0 = time.time()
-            row_list = ddb.read_csv(self.cache_path, sep="|").fetchall()
-            self.cache = dict(map(lambda row: (row[0], (row[1], row[2])), row_list))
+            row_list = duckdb.read_csv(self.cache_path, sep="|").fetchall()
             t1 = time.time()
-            print(f"cache load time {self.cache_path}: {t1-t0}", file=sys.stderr)
+            self.cache = dict(map(lambda row: (row[0], (row[1], row[2])), row_list))
+            t2 = time.time()
+            print(f"cache load time {self.cache_path}: {t1 - t0}", file=sys.stderr)
+            print(f"cache index time {self.cache_path}: {t2 - t1}", file=sys.stderr)
 
         # open cache file to write
         self.f = open(self.cache_path, "a")
