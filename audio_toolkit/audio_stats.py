@@ -250,3 +250,46 @@ class AudioStats:
             self.f.write(json.dumps(o) + "\n")
 
         return self.cache[path]
+
+class AudioStatsV4:
+    def __init__(self, cache_path: str = "/tmp/audio_stats.csv"):
+        self.cache_path = os.path.realpath(cache_path)
+        self.cache = {}
+        self.f = None
+
+    def __enter__(self) -> PersistentDict:
+        assert self.f is None
+        cache_dir = os.path.dirname(self.cache_path)
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+
+        if os.path.exists(self.cache_path):
+            # load cache file
+            t0 = time.time()
+            for row in ddb.read_csv(self.cache_path, sep="|").fetchall():
+                path, sample_rate, frame_count = row
+                self.cache[path] = (sample_rate, frame_count)
+            t1 = time.time()
+            print(f"cache load time {self.cache_path}: {t1-t0}", file=sys.stderr)
+
+        # open cache file to write
+        self.f = open(self.cache_path, "a")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        assert self.f is not None
+        self.f.close()
+        self.f = None
+
+    def get(self, path: str) -> Dict[str, Union[int, float]]:
+        assert self.f is not None
+
+        path = os.path.realpath(path)
+
+        if path not in self.cache:
+            ext = os.path.splitext(path)[1]
+            frame_count, sample_rate = get_duration[ext.lower()](path)
+            self.cache[path] = (sample_rate, frame_count)
+            self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
+
+        return self.cache[path]

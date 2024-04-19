@@ -5,6 +5,7 @@ import os
 from typing import Callable, Any
 import time
 import sys
+import duckdb as ddb
 
 class PersistentDict:
     def __enter__(self) -> PersistentDict:
