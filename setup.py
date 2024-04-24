@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="audio-toolkit",
-    version="0.33.0",
+    version="0.34.0",
     author="Nguyen Ngoc Khanh",
     author_email="khanh.nguyen.contact@gmail.com",
     long_description=open("README.md").read(),
@@ -14,5 +14,6 @@ setuptools.setup(
     install_requires=[
         "tqdm==4.65.0",
         "sqlitedict==2.1.0",
+        "duckdb==0.7.1",
     ],
 )

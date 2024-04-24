@@ -18,6 +18,7 @@ setuptools.setup(
     install_requires=[
         "tqdm==4.65.0",
         "sqlitedict==2.1.0",
+        "duckdb==0.7.1",
     ],
 )
 """
