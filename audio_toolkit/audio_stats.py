@@ -10,7 +10,6 @@ from typing import *
 from sqlitedict import SqliteDict
 from tqdm import tqdm
 
-from .util import PersistentDictJson
 import time
 import duckdb
 import sys
