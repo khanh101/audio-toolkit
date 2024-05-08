@@ -165,7 +165,7 @@ class AudioStatsV4:
 
         if os.path.exists(self.cache_path):
             # load cache file
-            t0 = time.time()
+            t0 = time.perf_counter()
             handle = duckdb.read_csv(self.cache_path, sep="|", header=False)
             while True:
                 row_list = handle.fetchmany(FETCH_BATCH_SIZE)
@@ -173,7 +173,7 @@ class AudioStatsV4:
                     break
                 for path, sample_rate, frame_count in row_list:
                     self.cache[path] = (sample_rate, frame_count)
-            t1 = time.time()
+            t1 = time.perf_counter()
             print(f"cache load and index time {self.cache_path}: {t1 - t0}", file=sys.stderr)
 
         # open cache file to write
