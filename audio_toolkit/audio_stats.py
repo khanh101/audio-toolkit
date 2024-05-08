@@ -180,6 +180,23 @@ class AudioStatsV4:
         self.f = open(self.cache_path, "a")
         return self
 
+    def ingest_v1(self, cache_path: str = "/tmp/audio_stats.json"):
+        with self as s:
+            # read cache
+            t0 = time.perf_counter()
+            with open(cache_path) as f:
+                for line in tqdm(list(f), desc=f"loading cache {cache_path}"):
+                    o = json.loads(line)
+                    path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
+                    if path in self.cache:
+                        continue
+
+                    self.cache[path] = (sample_rate, frame_count)
+                    self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
+
+            t1 = time.perf_counter()
+            print(f"cache ingest time {cache_path}: {t1 - t0}", file=sys.stderr)
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         assert self.f is not None
         self.f.close()
