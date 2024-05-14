@@ -10,7 +10,6 @@ from typing import *
 from sqlitedict import SqliteDict
 from tqdm import tqdm
 
-import time
 import duckdb
 import sys
 
@@ -165,16 +164,16 @@ class AudioStatsV4:
 
         if os.path.exists(self.cache_path):
             # load cache file
-            t0 = time.perf_counter()
-            handle = duckdb.read_csv(self.cache_path, sep="|", header=False)
-            while True:
-                row_list = handle.fetchmany(FETCH_BATCH_SIZE)
-                if len(row_list) == 0:
-                    break
-                for path, sample_rate, frame_count in row_list:
-                    self.cache[path] = (sample_rate, frame_count)
-            t1 = time.perf_counter()
-            print(f"cache load and index time {self.cache_path}: {t1 - t0}", file=sys.stderr)
+            with tqdm(desc=f"loading and indexing cache {self.cache_path} ...") as pbar:
+                handle = duckdb.read_csv(self.cache_path, sep="|", header=False)
+                while True:
+                    row_list = handle.fetchmany(FETCH_BATCH_SIZE)
+                    if len(row_list) == 0:
+                        break
+                    for path, sample_rate, frame_count in row_list:
+                        self.cache[path] = (sample_rate, frame_count)
+                    
+                    pbar.update(len(row_list))
 
         # open cache file to write
         self.f = open(self.cache_path, "a")
@@ -183,7 +182,6 @@ class AudioStatsV4:
     def ingest_v1(self, cache_path: str = "/tmp/audio_stats.json"):
         with self as s:
             # read cache
-            t0 = time.perf_counter()
             with open(cache_path) as f:
                 for line in tqdm(list(f), desc=f"loading cache {cache_path}"):
                     o = json.loads(line)
@@ -193,9 +191,6 @@ class AudioStatsV4:
 
                     self.cache[path] = (sample_rate, frame_count)
                     self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
-
-            t1 = time.perf_counter()
-            print(f"cache ingest time {cache_path}: {t1 - t0}", file=sys.stderr)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         assert self.f is not None
