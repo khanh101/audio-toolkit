@@ -149,10 +149,10 @@ class AudioStatsV2:
 
         return o
 
-FETCH_BATCH_SIZE = 1000000
 class AudioStatsV4:
-    def __init__(self, cache_path: str = "/tmp/audio_stats.csv"):
+    def __init__(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 1000000):
         self.cache_path = os.path.realpath(cache_path)
+        self.fetch_batch_size = fetch_batch_size
         self.cache = {}
         self.f = None
 
@@ -167,7 +167,7 @@ class AudioStatsV4:
             with tqdm(desc=f"loading and indexing cache {self.cache_path} ...") as pbar:
                 handle = duckdb.read_csv(self.cache_path, sep="|", header=False)
                 while True:
-                    row_list = handle.fetchmany(FETCH_BATCH_SIZE)
+                    row_list = handle.fetchmany(self.fetch_batch_size)
                     if len(row_list) == 0:
                         break
                     for path, sample_rate, frame_count in row_list:
