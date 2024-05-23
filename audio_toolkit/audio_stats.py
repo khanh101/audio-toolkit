@@ -150,7 +150,7 @@ class AudioStatsV2:
         return o
 
 class AudioStatsV4:
-    def __init__(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 1000000):
+    def __init__(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 100000):
         self.cache_path = os.path.realpath(cache_path)
         self.fetch_batch_size = fetch_batch_size
         self.cache = {}
