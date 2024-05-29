@@ -162,6 +162,13 @@ class AudioStatsV4:
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
 
+        self.load_cache()
+
+        # open cache file to write
+        self.f = open(self.cache_path, "a")
+        return self
+
+    def load_cache(self):
         if os.path.exists(self.cache_path):
             # load cache file
             with tqdm(desc=f"loading and indexing cache {self.cache_path} ...") as pbar:
@@ -175,15 +182,11 @@ class AudioStatsV4:
                     
                     pbar.update(len(row_list))
 
-        # open cache file to write
-        self.f = open(self.cache_path, "a")
-        return self
-
     def ingest_v1(self, cache_path: str = "/tmp/audio_stats.json"):
         with self as s:
             # read cache
             with open(cache_path) as f:
-                for line in tqdm(list(f), desc=f"loading cache {cache_path}"):
+                for line in tqdm(list(f), desc=f"loading cache {cache_path} ..."):
                     o = json.loads(line)
                     path, frame_count, sample_rate = o["path"], o["frame_count"], o["sample_rate"]
                     if path in self.cache:
@@ -191,6 +194,12 @@ class AudioStatsV4:
 
                     self.cache[path] = (sample_rate, frame_count)
                     self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
+
+    def clean(self):
+        self.load_cache()
+        with open(self.cache_path, "w") as f:
+            for path, (sample_rate, frame_count) in tqdm(list(self.cache.items()), desc=f"cleaning cache {self.cache_path} ..."):
+                f.write(f"{path}|{sample_rate}|{frame_count}\n")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         assert self.f is not None
