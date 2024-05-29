@@ -214,7 +214,7 @@ class AudioStatsV4:
         assert self.f is not None
 
         with open(cache_path, "w") as f:
-            for path, (sample_rate, frame_count) in tqdm(list(self.cache.items()), desc=f"cleaning cache {cache_path} ..."):
+            for path, (sample_rate, frame_count) in tqdm(list(self.cache.items()), desc=f"exporting cache {cache_path} ..."):
                 if check_file_exist and not os.path.exists(path):
                     continue
                 
