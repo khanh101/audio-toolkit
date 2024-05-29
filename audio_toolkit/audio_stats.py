@@ -199,7 +199,8 @@ class AudioStatsV4:
         self.load_cache()
         with open(self.cache_path, "w") as f:
             for path, (sample_rate, frame_count) in tqdm(list(self.cache.items()), desc=f"cleaning cache {self.cache_path} ..."):
-                f.write(f"{path}|{sample_rate}|{frame_count}\n")
+                if os.path.exists(path):
+                    f.write(f"{path}|{sample_rate}|{frame_count}\n")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         assert self.f is not None
