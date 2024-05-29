@@ -210,7 +210,7 @@ class AudioStatsV4:
 
         return self.cache[path]
 
-    def export(self, cache_path: str, check_file_exist: bool=True):
+    def export(self, cache_path: str, check_file_exist: bool=False):
         assert self.f is not None
 
         with open(cache_path, "w") as f:
