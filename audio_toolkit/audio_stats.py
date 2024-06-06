@@ -210,12 +210,8 @@ class AudioStatsV4:
 
         return self.cache[path]
 
-    def export(self, cache_path: str, check_file_exist: bool=False):
+    def __iter__(self) -> Iterator[tuple]:
         assert self.f is not None
 
-        with open(cache_path, "w") as f:
-            for path, (sample_rate, frame_count) in tqdm(list(self.cache.items()), desc=f"exporting cache {cache_path} ..."):
-                if check_file_exist and not os.path.exists(path):
-                    continue
-                
-                f.write(f"{path}|{sample_rate}|{frame_count}\n")
+        for path, (sample_rate, frame_count) in self.cache.items():
+            yield path, sample_rate, frame_count
