@@ -218,22 +218,35 @@ class AudioStatsV4:
 
 
 class AudioStatsWriteLater:
-    def __init__(self, cache_path: str = "/tmp/audio_stats.csv"):
-        self.cache_path = os.path.realpath(cache_path)
-        self.cache = None
-
-    def __enter__(self) -> AudioStatsV4:
+    def __init__(self):
         self.cache = {}
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def read_cache(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 100000):
+        cache_path = os.path.realpath(cache_path)
+        fetch_batch_size = fetch_batch_size
+        cache_dir = os.path.dirname(cache_path)
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+
+        if os.path.exists(cache_path):
+            # load cache file
+            with tqdm(desc=f"loading and indexing cache {cache_path} ...") as pbar:
+                handle = duckdb.read_csv(cache_path, sep="|", header=False)
+                while True:
+                    row_list = handle.fetchmany(fetch_batch_size)
+                    if len(row_list) == 0:
+                        break
+                    for path, sample_rate, frame_count in row_list:
+                        self.cache[path] = (sample_rate, frame_count)
+                    
+                    pbar.update(len(row_list))
+
+    def write_cache(self, cache_path: str = "/tmp/audio_stats.csv"):
         with open(self.cache_path, "a") as f:
             for path, (sample_rate, frame_count) in self.cache.items():
-                self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
-        self.cache = None
+                f.write(f"{path}|{sample_rate}|{frame_count}\n")
 
     def get(self, path: str) -> tuple[int, int]:
-
         path = os.path.realpath(path)
 
         if path not in self.cache:
@@ -244,10 +257,9 @@ class AudioStatsWriteLater:
         return self.cache[path]
 
     def __iter__(self) -> Iterator[tuple]:
-        assert self.f is not None
-
         for path, (sample_rate, frame_count) in self.cache.items():
             yield path, sample_rate, frame_count
+
 
 class AudioStatsNoCache:
     def __enter__(self) -> AudioStatsV4:
