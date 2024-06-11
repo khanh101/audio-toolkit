@@ -197,7 +197,7 @@ class AudioStatsV4:
         self.f.close()
         self.f = None
 
-    def get(self, path: str) -> Dict[str, Union[int, float]]:
+    def get(self, path: str) -> tuple[int, int]:
         assert self.f is not None
 
         path = os.path.realpath(path)
@@ -215,3 +215,50 @@ class AudioStatsV4:
 
         for path, (sample_rate, frame_count) in self.cache.items():
             yield path, sample_rate, frame_count
+
+
+class AudioStatsWriteLater:
+    def __init__(self, cache_path: str = "/tmp/audio_stats.csv"):
+        self.cache_path = os.path.realpath(cache_path)
+        self.cache = None
+
+    def __enter__(self) -> AudioStatsV4:
+        self.cache = {}
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        with open(self.cache_path, "a") as f:
+            for path, (sample_rate, frame_count) in self.cache.items():
+                self.f.write(f"{path}|{sample_rate}|{frame_count}\n")
+        self.cache = None
+
+    def get(self, path: str) -> tuple[int, int]:
+
+        path = os.path.realpath(path)
+
+        if path not in self.cache:
+            ext = os.path.splitext(path)[1]
+            frame_count, sample_rate = get_duration[ext.lower()](path)
+            self.cache[path] = (sample_rate, frame_count)
+
+        return self.cache[path]
+
+    def __iter__(self) -> Iterator[tuple]:
+        assert self.f is not None
+
+        for path, (sample_rate, frame_count) in self.cache.items():
+            yield path, sample_rate, frame_count
+
+class AudioStatsNoCache:
+    def __enter__(self) -> AudioStatsV4:
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return None
+
+    def get(self, path: str) -> tuple[int, int]:
+        path = os.path.realpath(path)
+
+        ext = os.path.splitext(path)[1]
+        frame_count, sample_rate = get_duration[ext.lower()](path)
+        return sample_rate, frame_count
