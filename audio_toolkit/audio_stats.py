@@ -221,7 +221,7 @@ class AudioStatsWriteLater:
     def __init__(self):
         self.cache = {}
 
-    def read_cache(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 100000):
+    def load_cache(self, cache_path: str = "/tmp/audio_stats.csv", fetch_batch_size: int = 100000):
         cache_path = os.path.realpath(cache_path)
         fetch_batch_size = fetch_batch_size
         cache_dir = os.path.dirname(cache_path)
@@ -241,10 +241,11 @@ class AudioStatsWriteLater:
                     
                     pbar.update(len(row_list))
 
-    def write_cache(self, cache_path: str = "/tmp/audio_stats.csv"):
+    def flush_cache(self, cache_path: str = "/tmp/audio_stats.csv"):
         with open(self.cache_path, "a") as f:
             for path, (sample_rate, frame_count) in self.cache.items():
                 f.write(f"{path}|{sample_rate}|{frame_count}\n")
+        self.cache = {}
 
     def get(self, path: str) -> tuple[int, int]:
         path = os.path.realpath(path)
